@@ -9,6 +9,8 @@ typedef struct chainOfUpdate{
     std::string downloadPath;
     std::string installPath;
     std::string command;
+    std::string md5;
+    std::string bashNeedExec;
 } updateChain;
 
 #endif

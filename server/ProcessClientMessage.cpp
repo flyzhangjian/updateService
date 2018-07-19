@@ -150,6 +150,32 @@ void ProcessClientMessage::OnWrite(int Sock,short,void *)
                 //write(Sock,"NULL",5);
             }
             cout << "commandNeed:" + commandNeedExec << endl;
+            string bashNeed("hget " + s + " bash");
+            string bashNeedExec = redisToMyApp -> execRedisCommand(bashNeed);
+            if(bashNeedExec.size() != 0)
+            {
+                appName += "&&bashNeedExec=" + bashNeedExec;
+                //write(Sock,commandNeedExec.c_str(),commandNeedExec.size());
+            }
+            else
+            {
+                appName += "&&bashNeedExec=NULL";
+                //write(Sock,"NULL",5);
+            }
+            cout << "commandNeed:" + bashNeedExec << endl;
+            string md5("hget " + s + " md5");
+            string md5SUm = redisToMyApp -> execRedisCommand(md5);
+            if(commandNeedExec.size() != 0)
+            {
+                appName += "&&md5=" + md5SUm;
+                //write(Sock,commandNeedExec.c_str(),commandNeedExec.size());
+            }
+            else
+            {
+                appName += "&&md5=NULL";
+                //write(Sock,"NULL",5);
+            }
+            cout << "md5:" + md5SUm << endl;
             appName += "&&end$";
             write(Sock,appName.c_str(),appName.size());
             cout << endl;

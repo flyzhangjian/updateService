@@ -88,7 +88,7 @@ void* my_con_lib::InitReadEvent(void *Arg)
 
 void my_con_lib::OnRead(int Sock,short Event,void *Arg)
 {
-    char key[6][20] = {"appName","version","pathDownload","installPath","commandNeedExec","end"};
+    char key[8][20] = {"appName","version","pathDownload","installPath","commandNeedExec","bashNeedExec","md5","end"};
     struct ParameterOfNewThread * SourceData = (struct ParameterOfNewThread *)Arg;
     my_con_lib *newThis = SourceData -> NewThis;
     int bufferSize = 512;
@@ -108,11 +108,12 @@ void my_con_lib::OnRead(int Sock,short Event,void *Arg)
         bufferSize -= size;
         size = read(Sock,check,bufferSize);
     }
-    //cout << size << "  " << Buffer << endl;
+    cout << size << "  " << Buffer << endl;
     string resultApp(Buffer);
     //cout << resultApp << endl;
     unsigned int position;
-    for (int i = 0;i < 5;i++)
+    string desSting;
+    for (int i = 0;i < 8;i++)
     {
         position = resultApp.find(key[i]);
         if(position < 0)
@@ -120,15 +121,20 @@ void my_con_lib::OnRead(int Sock,short Event,void *Arg)
             cout << "Error for string pattern";
             break;
         }
-        int position1 = resultApp.find(key[i + 1]);
-        cout <<  position << "  " << position1 << endl;
-        string desSting = resultApp.substr(position + strlen(key[i]) + 1,position1 - position - (strlen(key[i]) + 3));
+        if(i < 8)
+        {
+            int position1 = resultApp.find(key[i + 1]);
+            desSting = resultApp.substr(position + strlen(key[i]) + 1,position1 - position - (strlen(key[i]) + 3));
+            cout << desSting << endl;
+        }
         if(i == 0)(newThis -> oneOfUpdate).name = desSting;
         else if(1 == i) (newThis -> oneOfUpdate).version = desSting;
         else if(2 == i) (newThis -> oneOfUpdate).downloadPath = desSting;
         else if(3 == i) (newThis -> oneOfUpdate).installPath = desSting;
         else if(4 == i) (newThis -> oneOfUpdate).command = desSting;
-        if(4 == i)
+        else if(5 == i) (newThis -> oneOfUpdate).bashNeedExec = desSting;
+        else if(6 == i) (newThis -> oneOfUpdate).md5 = desSting;
+        if(7 == i)
         {
             (newThis -> chainOfUpdateApp).push_back(newThis -> oneOfUpdate);
         }
@@ -139,7 +145,7 @@ void my_con_lib::dealUpdate()
 {
     for(std::vector<updateChain>::iterator it = (this -> chainOfUpdateApp).begin();it != (this -> chainOfUpdateApp).end();it++)
     {
-        cout << it -> name << it -> version << it -> downloadPath << it -> installPath << it -> command << endl;
+        //cout << it -> name << it -> version << it -> downloadPath << it -> installPath << it -> command << endl;
         FILE *fp;
         if(it -> command != "NULL")
         {
@@ -179,7 +185,6 @@ void my_con_lib::dealUpdate()
         else
         {
             cout << "无下载路径 跳过" << endl;
-            break;
         }
     }
 }
