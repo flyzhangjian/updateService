@@ -146,6 +146,7 @@ void my_con_lib::dealUpdate()
     for(std::vector<updateChain>::iterator it = (this -> chainOfUpdateApp).begin();it != (this -> chainOfUpdateApp).end();it++)
     {
         //cout << it -> name << it -> version << it -> downloadPath << it -> installPath << it -> command << endl;
+        int isCanUpdate = 0;
         FILE *fp;
         if(it -> command != "NULL")
         {
@@ -185,6 +186,29 @@ void my_con_lib::dealUpdate()
         else
         {
             cout << "无下载路径 跳过" << endl;
+        }
+
+        cout << "开始校验md5" << endl;
+        if(it -> md5 != "NULL")
+        {
+            string md5sum("md5sum " + it -> name);
+            if((fp = popen(md5sum.data(),"r")) != NULL)
+            {
+                char line[100];
+                if (fgets(line, sizeof(line)-1, fp) != NULL)
+                {
+                    cout << line;
+                    if(string(line) == it -> md5)
+                    {
+                        cout << "文件校验成功" << endl;
+                        isCanUpdate = 1;
+                    }
+                    else
+                    {
+                        cout << "文件有损坏，尝试重新下载" << endl;
+                    }
+                }
+            }
         }
     }
 }
